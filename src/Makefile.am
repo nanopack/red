@@ -1,0 +1,20 @@
+# -*- mode: Makefile; tab-width: 4; indent-tabs-mode: 1; st-rulers: [70] -*-
+# vim: ts=8 sw=8 ft=Makefile noet
+
+bin_PROGRAMS = vtep
+
+vtep_SOURCES =  \
+	cmd/add-ip.c cmd/add-ip.h \
+	cmd/remove-ip.c cmd/remove-ip.h \
+	cmd/show-ip.c cmd/show-ip.h \
+	cmd/add-node.c cmd/add-node.h \
+	cmd/remove-node.c cmd/remove-node.h \
+	cmd/show-node.c cmd/show-node.h \
+	cmd/ping.c cmd/ping.h \
+	cmd/status.c cmd/status.h \
+	ip.c ip.h \
+	node.c node.h \
+	util/adlist.c util/adlist.h \
+	util/sds.c util/sds.h \
+	vtepd.c vtepd.h \
+	vtep.c vtep.h

@@ -1,0 +1,16 @@
+Makefile
+Makefile.in
+*.o
+*.a
+/config.*
+/src/vxadm
+/autom4te.cache
+/aclocal.m4
+/compile
+/depcomp
+/install-sh
+/missing
+.deps
+.dirstamp
+/tmp
+configure
