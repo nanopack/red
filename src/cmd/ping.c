@@ -85,5 +85,5 @@ handle_ping(int argc, char **argv)
 	msgxchng_request_t *req;
 	req = new_msgxchng_request("1", 1, "ping", 4, "", 0);
 
-	vtep_request(req, on_response);
+	vtepd_request(req, on_response);
 }

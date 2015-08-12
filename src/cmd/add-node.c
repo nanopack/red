@@ -26,6 +26,8 @@
 
 #include "add-node.h"
 
+static vtep_node_t node;
+
 static void 
 usage(void)
 {
@@ -54,19 +56,32 @@ parse_options(int argc, char **argv)
 					argv[i]);
 				usage();
 			} else {
-				
+				node.hostname = sdsnew(argv[i]);
 			}
 		}
 	}
 }
 
+static void
+on_response(msgxchng_response_t *res, int status)
+{
+	if (status == VXADM_ERR)
+		exit(1);
+
+	printf("status: %s\n", res->data);
+
+	clean_msgxchng_response(res);
+	free(res);
+}
+
 void 
 handle_add_node(int argc, char **argv)
 {
+	init_node(&node);
 	parse_options(argc, argv);
 
 	msgxchng_request_t *req;
 	req = new_msgxchng_request("1", 1, "node.add", 4, "", 0);
 
-	vtep_request(req, on_response);
+	vtepd_request(req, on_response);
 }

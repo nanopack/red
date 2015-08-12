@@ -27,4 +27,16 @@
 #ifndef IP_H
 #define IP_H
 
+typedef struct vtep_ip_s {
+	sds ip_address;
+} vtep_ip_t;
+
+vtep_ip_t	*new_ip();
+void		init_ip(vtep_ip_t *ip);
+void		free_ip(vtep_ip_t *ip);
+
+void		pack_ip(vtep_ip_t *ip, int *len);
+vtep_ip_t	*unpack_ip(msgpack_object object);
+list		*unpack_ips(msgpack_object object);
+
 #endif

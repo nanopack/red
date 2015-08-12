@@ -56,6 +56,18 @@ parse_options(int argc, char **argv)
 	}
 }
 
+static void
+on_response(msgxchng_response_t *res, int status)
+{
+	if (status == VXADM_ERR)
+		exit(1);
+
+	printf("status: %s\n", res->data);
+
+	clean_msgxchng_response(res);
+	free(res);
+}
+
 void 
 handle_show_node(int argc, char **argv)
 {
@@ -64,5 +76,5 @@ handle_show_node(int argc, char **argv)
 	msgxchng_request_t *req;
 	req = new_msgxchng_request("1", 1, "node.list", 4, "", 0);
 
-	vtep_request(req, on_response);
+	vtepd_request(req, on_response);
 }

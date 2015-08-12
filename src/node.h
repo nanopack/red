@@ -27,4 +27,16 @@
 #ifndef NODE_H
 #define NODE_H
 
+typedef struct vtep_node_s {
+	sds hostname;
+} vtep_node_t;
+
+vtep_node_t	*new_node();
+void		init_node(vtep_node_t *node);
+void		free_node(vtep_node_t *node);
+
+char		*pack_node(vtep_node_t *node, int *len);
+vtep_node_t	*unpack_node(msgpack_object object);
+list		*unpack_nodes(msgpack_object object);
+
 #endif

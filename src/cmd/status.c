@@ -85,5 +85,5 @@ handle_status(int argc, char **argv)
 	msgxchng_request_t *req;
 	req = new_msgxchng_request("1", 1, "status", 6, "", 0);
 
-	vtep_request(req, on_response);
+	vtepd_request(req, on_response);
 }
