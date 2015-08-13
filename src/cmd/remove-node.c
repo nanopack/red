@@ -24,7 +24,15 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#include "remove-node.h"
+#include <stdio.h>	/* standard buffered input/output */
+#include <stdlib.h>	/* standard library definitions */
+#include <string.h>	/* string operations */
+#include <msgxchng.h>
+
+#include "util/sds.h"
+#include "vtepd.h"
+#include "vtep.h"
+#include "cmd/remove-node.h"
 
 static vtep_node_t node;
 
@@ -62,10 +70,36 @@ parse_options(int argc, char **argv)
 	}
 }
 
+static char *
+pack_data(int *size)
+{
+	msgpack_sbuffer *buffer = NULL;
+	msgpack_packer *packer  = NULL;
+	char *data;
+	int i;
+	char censored[22];
+	sprintf(censored, "%d", device.censored);
+
+	buffer = msgpack_sbuffer_new();
+	msgpack_sbuffer_init(buffer);
+	packer = msgpack_packer_new((void *)buffer, msgpack_sbuffer_write);
+
+	pack_node(packer, &node);
+
+	data = (char *)malloc(buffer->size + 1);
+	memcpy(data, &buffer->data[0], buffer->size);
+	data[buffer->size] = '\0';
+	*size = buffer->size;
+
+	msgpack_packer_free(packer);
+	msgpack_sbuffer_free(buffer);
+	return data;
+}
+
 static void
 on_response(msgxchng_response_t *res, int status)
 {
-	if (status == VXADM_ERR)
+	if (status == VTEP_ERR)
 		exit(1);
 
 	printf("status: %s\n", res->data);
@@ -77,11 +111,15 @@ on_response(msgxchng_response_t *res, int status)
 void 
 handle_remove_node(int argc, char **argv)
 {
+	char *data;
+	int size;
 	init_node(&node);
 	parse_options(argc, argv);
 
 	msgxchng_request_t *req;
-	req = new_msgxchng_request("1", 1, "node.remove", 4, "", 0);
+	data = pack_data(&size);
+	req = new_msgxchng_request("1", 1, "node.remove", 11, "", 0);
 
+	free(data);
 	vtepd_request(req, on_response);
 }

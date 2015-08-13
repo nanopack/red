@@ -27,6 +27,11 @@
 #ifndef IP_H
 #define IP_H
 
+#include <msgpack.h>
+
+#include "util/sds.h"
+#include "util/adlist.h"
+
 typedef struct vtep_ip_s {
 	sds ip_address;
 } vtep_ip_t;

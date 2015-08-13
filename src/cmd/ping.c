@@ -27,13 +27,12 @@
 #include <stdio.h>	/* standard buffered input/output */
 #include <stdlib.h>	/* standard library definitions */
 #include <string.h>	/* string operations */
-
 #include <msgxchng.h>
 
-#include "device.h"
 #include "util/sds.h"
+#include "vtepd.h"
 #include "vtep.h"
-#include "vxadm.h"
+#include "cmd/ping.h"
 
 static void 
 usage(void)
@@ -68,7 +67,7 @@ parse_options(int argc, char **argv)
 static void
 on_response(msgxchng_response_t *res, int status)
 {
-	if (status == VXADM_ERR)
+	if (status == VTEP_ERR)
 		exit(1);
 
 	printf("pong!\n");

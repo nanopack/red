@@ -24,7 +24,17 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#include "show-node.h"
+#include <stdio.h>	/* standard buffered input/output */
+#include <stdlib.h>	/* standard library definitions */
+#include <string.h>	/* string operations */
+#include <msgxchng.h>
+
+#include "util/sds.h"
+#include "vtepd.h"
+#include "vtep.h"
+#include "cmd/show-node.h"
+
+static list *nodes;
 
 static void 
 usage(void)
@@ -57,12 +67,51 @@ parse_options(int argc, char **argv)
 }
 
 static void
+unpack_data(char *data, int len)
+{
+	msgpack_zone mempool;
+	msgpack_zone_init(&mempool, 4096);
+
+	msgpack_object deserialized;
+	msgpack_unpack(data, len, NULL, &mempool, &deserialized);
+
+	if (deserialized.type == MSGPACK_OBJECT_MAP) {
+		msgpack_object_kv* p = deserialized.via.map.ptr;
+		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+
+		for (; p < pend; ++p) {
+			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_ARRAY) {
+				if (!strncmp(p->key.via.raw.ptr, "nodes", p->key.via.raw.size)) {
+					nodes = unpack_nodes(p->val.via.array.ptr);
+				}
+			}
+		}
+	}
+}
+
+static void
+print_data()
+{
+	vtep_node_t *node;
+	listNode *list_node;
+	listIter *itr = listGetIterator(nodes, AL_START_HEAD);
+	printf("NODES:\n");
+	while ((list_node = listNext(itr)) != NULL) {
+		node = (vtep_node_t *)list_node->value;
+		printf("%s\n", node->hostname);
+	}
+	listReleaseIterator(itr);
+	listRelease(nodes);
+}
+
+static void
 on_response(msgxchng_response_t *res, int status)
 {
-	if (status == VXADM_ERR)
+	if (status == VTEP_ERR)
 		exit(1);
 
-	printf("status: %s\n", res->data);
+	unpack_data(res->data, res->data_len);
+	print_data();
 
 	clean_msgxchng_response(res);
 	free(res);
@@ -74,7 +123,7 @@ handle_show_node(int argc, char **argv)
 	parse_options(argc, argv);
 
 	msgxchng_request_t *req;
-	req = new_msgxchng_request("1", 1, "node.list", 4, "", 0);
+	req = new_msgxchng_request("1", 1, "node.list", 9, "", 0);
 
 	vtepd_request(req, on_response);
 }

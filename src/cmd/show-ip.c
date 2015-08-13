@@ -24,7 +24,17 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#include "show-ip.h"
+#include <stdio.h>	/* standard buffered input/output */
+#include <stdlib.h>	/* standard library definitions */
+#include <string.h>	/* string operations */
+#include <msgxchng.h>
+
+#include "util/sds.h"
+#include "vtepd.h"
+#include "vtep.h"
+#include "cmd/show-ip.h"
+
+static list *ips;
 
 static void 
 usage(void)
@@ -57,12 +67,51 @@ parse_options(int argc, char **argv)
 }
 
 static void
+unpack_data(char *data, int len)
+{
+	msgpack_zone mempool;
+	msgpack_zone_init(&mempool, 4096);
+
+	msgpack_object deserialized;
+	msgpack_unpack(data, len, NULL, &mempool, &deserialized);
+
+	if (deserialized.type == MSGPACK_OBJECT_MAP) {
+		msgpack_object_kv* p = deserialized.via.map.ptr;
+		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+
+		for (; p < pend; ++p) {
+			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_ARRAY) {
+				if (!strncmp(p->key.via.raw.ptr, "ip_addresses", p->key.via.raw.size)) {
+					ips = unpack_ips(p->val.via.array.ptr);
+				}
+			}
+		}
+	}
+}
+
+static void
+print_data()
+{
+	vtep_ip_t *ip;
+	listNode *list_node;
+	listIter *itr = listGetIterator(ips, AL_START_HEAD);
+	printf("IP ADDRESSES:\n");
+	while ((list_node = listNext(itr)) != NULL) {
+		ip = (vtep_ip_t *)list_node->value;
+		printf("%s\n", ip->ip_address);
+	}
+	listReleaseIterator(itr);
+	listRelease(ips);
+}
+
+static void
 on_response(msgxchng_response_t *res, int status)
 {
-	if (status == VXADM_ERR)
+	if (status == VTEP_ERR)
 		exit(1);
-
-	printf("status: %s\n", res->data);
+	
+	unpack_data(res->data, res->data_len);
+	print_data();
 
 	clean_msgxchng_response(res);
 	free(res);
@@ -74,7 +123,7 @@ handle_show_ip(int argc, char **argv)
 	parse_options(argc, argv);
 
 	msgxchng_request_t *req;
-	req = new_msgxchng_request("1", 1, "ip.list", 4, "", 0);
+	req = new_msgxchng_request("1", 1, "ip.list", 7, "", 0);
 
 	vtepd_request(req, on_response);
 }

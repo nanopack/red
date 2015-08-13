@@ -24,6 +24,11 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
+#include <stdio.h>	/* standard buffered input/output */
+#include <stdlib.h>	/* standard library definitions */
+#include <string.h>	/* string operations */
+#include <msgxchng.h>
+
 #include "ip.h"
 
 vtep_ip_t

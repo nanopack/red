@@ -27,6 +27,11 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <msgpack.h>
+
+#include "util/sds.h"
+#include "util/adlist.h"
+
 typedef struct vtep_node_s {
 	sds hostname;
 } vtep_node_t;

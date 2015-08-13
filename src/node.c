@@ -24,6 +24,12 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
+#include <stdio.h>	/* standard buffered input/output */
+#include <stdlib.h>	/* standard library definitions */
+#include <string.h>	/* string operations */
+#include <msgxchng.h>
+
+#include "util/sds.h"
 #include "node.h"
 
 vtep_node_t
@@ -57,7 +63,7 @@ pack_key_value(msgpack_packer *packer, char *key,
 }
 
 char
-*pack_node(vtep_node_t *node, int len)
+*pack_node(msgpack_packer *packer, vtep_node_t *node)
 {
 	msgpack_pack_map(packer, 1);
 	pack_key_value(packer, "node", 4, (char *)node->hostname, (int)sdslen(node->hostname));
