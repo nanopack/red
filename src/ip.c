@@ -131,8 +131,8 @@ list
 		return ip_list;
 	vtep_ip_t *ip;
 
-	for (int i = 0; i < object->val.via.array.size; i++) {
-		ip = unpack_ip(object->val.via.array.ptr[i]);
+	for (int i = 0; i < object.via.array.size; i++) {
+		ip = unpack_ip(object.via.array.ptr[i]);
 		if (ip) {
 			listAddNodeTail(ip_list, (void *)ip);
 		}

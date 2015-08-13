@@ -132,8 +132,8 @@ list
 		return node_list;
 	vtep_node_t *node;
 
-	for (int i = 0; i < object->val.via.array.size; i++) {
-		node = unpack_node(object->val.via.array.ptr[i]);
+	for (int i = 0; i < object.via.array.size; i++) {
+		node = unpack_node(object.via.array.ptr[i]);
 		if (node) {
 			listAddNodeTail(node_list, (void *)node);
 		}
