@@ -84,7 +84,7 @@ parse_response(vtepd_session_t *session, bframe_t *frame)
 		clean_vtepd_session(session);
 	}
 
-	session->cb(res, VXADM_OK);
+	session->cb(res, VTEP_OK);
 
 	/* cleanup */
 	clean_bframe(frame);
@@ -110,7 +110,7 @@ on_read(uv_stream_t *proto, ssize_t nread, uv_buf_t buf)
     	}
     	printf("Error: Connection closed prematurely\n");
 		uv_close((uv_handle_t *)proto, (uv_close_cb) free);
-		session->cb(NULL, VXADM_ERR);
+		session->cb(NULL, VTEP_ERR);
 		uv_stop(uv_default_loop());
 		clean_vtepd_session(session);
 		return;
@@ -192,7 +192,7 @@ on_connect(uv_connect_t* connection, int status)
 
 	if (status < 0) {
 		printf("Error: Unable to connect to VTEP\n");
-		session->cb(NULL, VXADM_ERR);
+		session->cb(NULL, VTEP_ERR);
 		uv_stop(uv_default_loop());
 		clean_vtepd_session(session);
 		free(session->socket);
@@ -230,7 +230,7 @@ on_resolve(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
 
 	if (status < 0) {
 		printf("Error: Unable to resolve %s\n", config.vtepd_ip);
-		session->cb(NULL, VXADM_ERR);
+		session->cb(NULL, VTEP_ERR);
 		uv_stop(uv_default_loop());
 		clean_vtepd_session(session);
 	} else {
