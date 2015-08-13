@@ -33,6 +33,7 @@
 #include "vtepd.h"
 #include "vtep.h"
 #include "cmd/show-node.h"
+#include "node.h"
 
 static list *nodes;
 

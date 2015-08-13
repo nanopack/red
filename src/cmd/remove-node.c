@@ -33,6 +33,7 @@
 #include "vtepd.h"
 #include "vtep.h"
 #include "cmd/remove-node.h"
+#include "node.h"
 
 static vtep_node_t node;
 

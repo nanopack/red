@@ -33,6 +33,7 @@
 #include "vtepd.h"
 #include "vtep.h"
 #include "cmd/remove-ip.h"
+#include "ip.h"
 
 static vtep_ip_t ip;
 

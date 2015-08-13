@@ -33,6 +33,7 @@
 #include "vtepd.h"
 #include "vtep.h"
 #include "cmd/add-node.h"
+#include "node.h"
 
 static vtep_node_t node;
 

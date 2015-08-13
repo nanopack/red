@@ -33,6 +33,7 @@
 #include "vtepd.h"
 #include "vtep.h"
 #include "cmd/show-ip.h"
+#include "ip.h"
 
 static list *ips;
 
