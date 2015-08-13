@@ -83,7 +83,7 @@ unpack_data(char *data, int len)
 		for (; p < pend; ++p) {
 			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_ARRAY) {
 				if (!strncmp(p->key.via.raw.ptr, "ip_addresses", p->key.via.raw.size)) {
-					ips = unpack_ips(p->val.via.array.ptr);
+					ips = unpack_ips(p->val);
 				}
 			}
 		}

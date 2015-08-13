@@ -83,7 +83,7 @@ unpack_data(char *data, int len)
 		for (; p < pend; ++p) {
 			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_ARRAY) {
 				if (!strncmp(p->key.via.raw.ptr, "nodes", p->key.via.raw.size)) {
-					nodes = unpack_nodes(p->val.via.array.ptr);
+					nodes = unpack_nodes(p->val);
 				}
 			}
 		}
