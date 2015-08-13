@@ -28,7 +28,7 @@
 #include <stdlib.h>	/* standard library definitions */
 #include <string.h>	/* string operations */
 
-#include "vxadm.h"
+#include "vtep.h"
 #include "util/sds.h"
 #include "cmd/add-ip.h"
 #include "cmd/add-node.h"
@@ -46,7 +46,7 @@ static void
 usage(void)
 {
 	fprintf(stderr,
-"Usage: vxadm [OPTIONS] <subcommand>  <args> ...\n"
+"Usage: vtep [OPTIONS] <subcommand>  <args> ...\n"
 "    -h <hostname>      VTEP hostname (default: %s)\n"
 "    -p <port>          VTEP port (default: %i)\n"
 "    --help             Output this help and exit\n"
