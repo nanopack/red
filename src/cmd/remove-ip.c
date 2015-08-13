@@ -77,9 +77,6 @@ pack_data(int *size)
 	msgpack_sbuffer *buffer = NULL;
 	msgpack_packer *packer  = NULL;
 	char *data;
-	int i;
-	char censored[22];
-	sprintf(censored, "%d", device.censored);
 
 	buffer = msgpack_sbuffer_new();
 	msgpack_sbuffer_init(buffer);

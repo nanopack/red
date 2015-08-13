@@ -40,7 +40,7 @@ vtep_node_t	*new_node();
 void		init_node(vtep_node_t *node);
 void		free_node(vtep_node_t *node);
 
-char		*pack_node(vtep_node_t *node, int *len);
+char		*pack_node(msgpack_packer *packer, vtep_node_t *node);
 vtep_node_t	*unpack_node(msgpack_object object);
 list		*unpack_nodes(msgpack_object object);
 

@@ -40,7 +40,7 @@ vtep_ip_t	*new_ip();
 void		init_ip(vtep_ip_t *ip);
 void		free_ip(vtep_ip_t *ip);
 
-void		pack_ip(vtep_ip_t *ip, int *len);
+void		pack_ip(msgpack_packer *packer, vtep_ip_t *ip);
 vtep_ip_t	*unpack_ip(msgpack_object object);
 list		*unpack_ips(msgpack_object object);
 
