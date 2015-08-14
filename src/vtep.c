@@ -139,10 +139,10 @@ handle_command(int argc, char **argv)
 		handle_remove_node(argc, argv);
 
 	else if (!strcmp(command, "show-ip"))
-		handle_remove_ip(argc, argv);
+		handle_show_ip(argc, argv);
 
 	else if (!strcmp(command, "show-node"))
-		handle_remove_node(argc, argv);
+		handle_show_node(argc, argv);
 
 	else if (!strcmp(command, "status"))
 		handle_status(argc, argv);
