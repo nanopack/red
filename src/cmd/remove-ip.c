@@ -50,6 +50,7 @@ static void
 parse_options(int argc, char **argv) 
 {
 	int i;
+	ip.ip_address = NULL;
 
 	for (i = 0; i < argc; i++) {
 		int lastarg = i==argc-1;
@@ -113,6 +114,8 @@ handle_remove_ip(int argc, char **argv)
 	int size;
 	init_ip(&ip);
 	parse_options(argc, argv);
+	if (ip.ip_address == NULL)
+		usage();
 
 	msgxchng_request_t *req;
 	data = pack_data(&size);

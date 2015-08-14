@@ -50,6 +50,7 @@ static void
 parse_options(int argc, char **argv) 
 {
 	int i;
+	node.hostname = NULL;
 
 	for (i = 0; i < argc; i++) {
 		int lastarg = i==argc-1;
@@ -113,6 +114,8 @@ handle_add_node(int argc, char **argv)
 	int size;
 	init_node(&node);
 	parse_options(argc, argv);
+	if (node.hostname == NULL)
+		usage();
 
 	msgxchng_request_t *req;
 	data = pack_data(&size);
