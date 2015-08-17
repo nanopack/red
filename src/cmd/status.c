@@ -34,6 +34,19 @@
 #include "vtep.h"
 #include "cmd/status.h"
 
+typedef struct vtep_status_s {
+	list *ips;
+	list *nodes;
+	char *tun_dev;
+	char *vxlan_dev;
+	char *vxlan_vni;
+	char *vxlan_group;
+	char *vxlan_port;
+	char *vxlan_interface;
+} vtep_status_t;
+
+static vtep_status_t vtep_status;
+
 static void 
 usage(void)
 {
@@ -65,12 +78,106 @@ parse_options(int argc, char **argv)
 }
 
 static void
+initialize_data()
+{
+	vtep_status.ips = listCreate();
+	vtep_status.nodes = listCreate();
+	vtep_status.tun_dev = strdup("");
+	vtep_status.vxlan_dev = strdup("");
+	vtep_status.vxlan_vni = strdup("");
+	vtep_status.vxlan_group = strdup("");
+	vtep_status.vxlan_port = strdup("");
+	vtep_status.vxlan_interface = strdup("");
+}
+
+static void
+unpack_data(char *data, int len)
+{
+	msgpack_zone mempool;
+	msgpack_zone_init(&mempool, 4096);
+
+	msgpack_object deserialized;
+	msgpack_unpack(data, len, NULL, &mempool, &deserialized);
+
+	if (deserialized.type == MSGPACK_OBJECT_MAP) {
+		msgpack_object_kv* p = deserialized.via.map.ptr;
+		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+
+		for (; p < pend; ++p) {
+			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_ARRAY) {
+				if (!strncmp(p->key.via.raw.ptr, "ip_addresses", p->key.via.raw.size)) {
+					listRelease(vtep_status.ips);
+					vtep_status.ips = unpack_ips(p->val);
+				} else if (!strncmp(p->key.via.raw.ptr, "nodes", p->key.via.raw.size)) {
+					listRelease(vtep_status.nodes);
+					vtep_status.nodes = unpack_nodes(p->val);
+				} else if (!strncmp(p->key.via.raw.ptr, "tun_dev", p->key.via.raw.size)) {
+					free(vtep_status.tun_dev);
+					vtep_status.tun_dev = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_dev", p->key.via.raw.size)) {
+					free(vtep_status.vxlan_dev);
+					vtep_status.vxlan_dev = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_vni", p->key.via.raw.size)) {
+					free(vtep_status.vxlan_vni);
+					vtep_status.vxlan_vni = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_group", p->key.via.raw.size)) {
+					free(vtep_status.vxlan_group);
+					vtep_status.vxlan_group = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_port", p->key.via.raw.size)) {
+					free(vtep_status.vxlan_port);
+					vtep_status.vxlan_port = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_interface", p->key.via.raw.size)) {
+					free(vtep_status.vxlan_interface);
+					vtep_status.vxlan_interface = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+				}
+			}
+		}
+	}
+}
+
+static void print_status()
+{
+	listIter *iterator	= listGetIterator(server.ips, AL_START_HEAD);
+	listNode *list_node	= NULL;
+	printf("Tunnel Device:\t%s", vtep_status.tun_dev);
+	printf("VxLAN Device:\t%s", vtep_status.vxlan_dev);
+	printf("VxLAN VNI:\t%s", vtep_status.vxlan_vni);
+	printf("Multicast Group:\t%s", vtep_status.vxlan_group);
+	printf("VxLan Port:\t%s", vtep_status.vxlan_port);
+	printf("Real Interface:\t%s", vtep_status.vxlan_interface);
+	iterator = listGetIterator(vtep_status.ips, AL_START_HEAD);
+	printf("IP ADDRESSES:\n");
+	while ((list_node = listNext(iterator)) != NULL) {
+		ip = (vtep_ip_t *)list_node->value;
+		printf("\t%s\n", ip->ip_address);
+	}
+	listReleaseIterator(iterator);
+	iterator = listGetIterator(vtep_status.nodes, AL_START_HEAD);
+	printf("NODES:\n");
+	while ((list_node = listNext(itr)) != NULL) {
+		node = (vtep_node_t *)list_node->value;
+		printf("\t%s\n", node->hostname);
+	}
+	listReleaseIterator(iterator);
+	listRelease(vtep_status.ips);
+	listRelease(vtep_status.nodes);
+	free(vtep_status.tun_dev);
+	free(vtep_status.vxlan_dev);
+	free(vtep_status.vxlan_vni);
+	free(vtep_status.vxlan_group);
+	free(vtep_status.vxlan_port);
+	free(vtep_status.vxlan_interface);
+}
+
+static void
 on_response(msgxchng_response_t *res, int status)
 {
 	if (status == VTEP_ERR)
 		exit(1);
 
-	printf("status: %s\n", res->data);
+	initialize_data();
+	unpack_data(res->data, res->data_len);
+	print_status();
 
 	clean_msgxchng_response(res);
 	free(res);

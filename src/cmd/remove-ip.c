@@ -101,10 +101,37 @@ on_response(msgxchng_response_t *res, int status)
 	if (status == VTEP_ERR)
 		exit(1);
 
-	printf("status: %s\n", res->data);
+	msgpack_zone mempool;
+	msgpack_zone_init(&mempool, 4096);
+
+	msgpack_object deserialized;
+	msgpack_unpack(res->data, res->data_len, NULL, &mempool, &deserialized);
+
+	int success = 0;
+
+	if (deserialized.type == MSGPACK_OBJECT_MAP) {
+		msgpack_object_kv* p = deserialized.via.map.ptr;
+		msgpack_object_kv* const pend = deserialized.via.map.ptr + deserialized.via.map.size;
+
+		for (; p < pend; ++p) {
+			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
+				if (!strncmp(p->key.via.raw.ptr, "return", p->key.via.raw.size)) {
+					if (!strncmp(p->val.via.raw.ptr, "success", p->val.via.raw.size))
+						success = 1;
+					else 
+						success = 0;
+				} else if (!strncmp(p->key.via.raw.ptr, "error", p->key.via.raw.size)) {
+					fprintf(stderr, "vtep: %s\n", p->val.via.raw.ptr);
+				}
+			}
+		}
+	}
 
 	clean_msgxchng_response(res);
 	free(res);
+
+	if (!success)
+		exit(1);
 }
 
 void 

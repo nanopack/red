@@ -62,8 +62,8 @@ pack_key_value(msgpack_packer *packer, char *key,
 	msgpack_pack_raw_body(packer, value, value_len);
 }
 
-char
-*pack_node(msgpack_packer *packer, vtep_node_t *node)
+void
+pack_node(msgpack_packer *packer, vtep_node_t *node)
 {
 	msgpack_pack_map(packer, 1);
 	pack_key_value(packer, "node", 4, (char *)node->hostname, (int)sdslen(node->hostname));
