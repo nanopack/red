@@ -116,7 +116,7 @@ unpack_data(char *data, int len)
 					vtep_status.nodes = unpack_nodes(p->val);
 				}
 			} else if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
-				 else if (!strncmp(p->key.via.raw.ptr, "tun_dev", p->key.via.raw.size)) {
+				if (!strncmp(p->key.via.raw.ptr, "tun_dev", p->key.via.raw.size)) {
 					free(vtep_status.tun_dev);
 					vtep_status.tun_dev = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_dev", p->key.via.raw.size)) {
