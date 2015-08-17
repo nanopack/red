@@ -114,7 +114,9 @@ unpack_data(char *data, int len)
 				} else if (!strncmp(p->key.via.raw.ptr, "nodes", p->key.via.raw.size)) {
 					listRelease(vtep_status.nodes);
 					vtep_status.nodes = unpack_nodes(p->val);
-				} else if (!strncmp(p->key.via.raw.ptr, "tun_dev", p->key.via.raw.size)) {
+				}
+			} else if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
+				 else if (!strncmp(p->key.via.raw.ptr, "tun_dev", p->key.via.raw.size)) {
 					free(vtep_status.tun_dev);
 					vtep_status.tun_dev = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_dev", p->key.via.raw.size)) {
@@ -142,12 +144,12 @@ static void print_status()
 {
 	listIter *iterator	= listGetIterator(vtep_status.ips, AL_START_HEAD);
 	listNode *list_node	= NULL;
-	printf("Tunnel Device:\t%s", vtep_status.tun_dev);
-	printf("VxLAN Device:\t%s", vtep_status.vxlan_dev);
-	printf("VxLAN VNI:\t%s", vtep_status.vxlan_vni);
-	printf("Multicast Group:\t%s", vtep_status.vxlan_group);
-	printf("VxLan Port:\t%s", vtep_status.vxlan_port);
-	printf("Real Interface:\t%s", vtep_status.vxlan_interface);
+	printf("Tunnel Device:\t%s\n", vtep_status.tun_dev);
+	printf("VxLAN Device:\t%s\n", vtep_status.vxlan_dev);
+	printf("VxLAN VNI:\t%s\n", vtep_status.vxlan_vni);
+	printf("Multicast Group:\t%s\n", vtep_status.vxlan_group);
+	printf("VxLan Port:\t%s\n", vtep_status.vxlan_port);
+	printf("Real Interface:\t%s\n", vtep_status.vxlan_interface);
 	iterator = listGetIterator(vtep_status.ips, AL_START_HEAD);
 	printf("IP ADDRESSES:\n");
 	while ((list_node = listNext(iterator)) != NULL) {
