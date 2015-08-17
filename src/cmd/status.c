@@ -29,10 +29,13 @@
 #include <string.h>	/* string operations */
 #include <msgxchng.h>
 
+#include "ip.h"
+#include "node.h"
 #include "util/sds.h"
 #include "vtepd.h"
 #include "vtep.h"
 #include "cmd/status.h"
+#include "util/adlist.h"
 
 typedef struct vtep_status_s {
 	list *ips;
@@ -113,22 +116,22 @@ unpack_data(char *data, int len)
 					vtep_status.nodes = unpack_nodes(p->val);
 				} else if (!strncmp(p->key.via.raw.ptr, "tun_dev", p->key.via.raw.size)) {
 					free(vtep_status.tun_dev);
-					vtep_status.tun_dev = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+					vtep_status.tun_dev = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_dev", p->key.via.raw.size)) {
 					free(vtep_status.vxlan_dev);
-					vtep_status.vxlan_dev = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+					vtep_status.vxlan_dev = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_vni", p->key.via.raw.size)) {
 					free(vtep_status.vxlan_vni);
-					vtep_status.vxlan_vni = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+					vtep_status.vxlan_vni = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_group", p->key.via.raw.size)) {
 					free(vtep_status.vxlan_group);
-					vtep_status.vxlan_group = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+					vtep_status.vxlan_group = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_port", p->key.via.raw.size)) {
 					free(vtep_status.vxlan_port);
-					vtep_status.vxlan_port = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+					vtep_status.vxlan_port = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_interface", p->key.via.raw.size)) {
 					free(vtep_status.vxlan_interface);
-					vtep_status.vxlan_interface = strndup(p->val.via.raw.prt, p->val.via.raw.size);
+					vtep_status.vxlan_interface = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				}
 			}
 		}
@@ -137,7 +140,7 @@ unpack_data(char *data, int len)
 
 static void print_status()
 {
-	listIter *iterator	= listGetIterator(server.ips, AL_START_HEAD);
+	listIter *iterator	= listGetIterator(vtep_status.ips, AL_START_HEAD);
 	listNode *list_node	= NULL;
 	printf("Tunnel Device:\t%s", vtep_status.tun_dev);
 	printf("VxLAN Device:\t%s", vtep_status.vxlan_dev);
@@ -148,14 +151,14 @@ static void print_status()
 	iterator = listGetIterator(vtep_status.ips, AL_START_HEAD);
 	printf("IP ADDRESSES:\n");
 	while ((list_node = listNext(iterator)) != NULL) {
-		ip = (vtep_ip_t *)list_node->value;
+		vtep_ip_t *ip = (vtep_ip_t *)list_node->value;
 		printf("\t%s\n", ip->ip_address);
 	}
 	listReleaseIterator(iterator);
 	iterator = listGetIterator(vtep_status.nodes, AL_START_HEAD);
 	printf("NODES:\n");
-	while ((list_node = listNext(itr)) != NULL) {
-		node = (vtep_node_t *)list_node->value;
+	while ((list_node = listNext(iterator)) != NULL) {
+		vtep_node_t *node = (vtep_node_t *)list_node->value;
 		printf("\t%s\n", node->hostname);
 	}
 	listReleaseIterator(iterator);
