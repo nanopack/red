@@ -106,13 +106,32 @@ print_data()
 }
 
 static void
+print_yaml_data()
+{
+	vtep_node_t *node;
+	listNode *list_node;
+	listIter *itr = listGetIterator(nodes, AL_START_HEAD);
+	printf("nodes:\n");
+	while ((list_node = listNext(itr)) != NULL) {
+		node = (vtep_node_t *)list_node->value;
+		printf("  - %s\n", node->hostname);
+	}
+	listReleaseIterator(itr);
+	listRelease(nodes);
+}
+
+static void
 on_response(msgxchng_response_t *res, int status)
 {
 	if (status == VTEP_ERR)
 		exit(1);
 
 	unpack_data(res->data, res->data_len);
-	print_data();
+	if (config.yaml_out) {
+		print_yaml_data();
+	} else {
+		print_data();
+	}
 
 	clean_msgxchng_response(res);
 	free(res);

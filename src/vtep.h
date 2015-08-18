@@ -42,6 +42,7 @@
 typedef struct config_s {
 	sds		vtepd_ip;	/* host/ip of vtep instance */
 	int		vtepd_port;	/* port of vtep instance */
+	int		yaml_out;
 } config_t;
 
 extern config_t config;

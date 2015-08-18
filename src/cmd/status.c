@@ -174,6 +174,48 @@ static void print_status()
 	free(vtep_status.vxlan_interface);
 }
 
+static void print_yaml_status()
+{
+	listNode *list_node	= NULL;
+	listIter *iterator = NULL;
+	printf("tunnel_device: %s\n", vtep_status.tun_dev);
+	printf("vxlan_device: %s\n", vtep_status.vxlan_dev);
+	printf("vxlan_vni: %s\n", vtep_status.vxlan_vni);
+	printf("multicast_group: %s\n", vtep_status.vxlan_group);
+	printf("vxlan_port: %s\n", vtep_status.vxlan_port);
+	printf("real_interface: %s\n", vtep_status.vxlan_interface);
+	if (listLength(vtep_status.ips) == 0) {
+		printf("ips: []\n");
+	} else {
+		iterator = listGetIterator(vtep_status.ips, AL_START_HEAD);
+		printf("ips:\n");
+		while ((list_node = listNext(iterator)) != NULL) {
+			vtep_ip_t *ip = (vtep_ip_t *)list_node->value;
+			printf("  - %s\n", ip->ip_address);
+		}
+		listReleaseIterator(iterator);
+	}
+	if (listLength(vtep_status.nodes) == 0) {
+		printf("nodes: []\n");
+	} else {
+		iterator = listGetIterator(vtep_status.nodes, AL_START_HEAD);
+		printf("nodes:\n");
+		while ((list_node = listNext(iterator)) != NULL) {
+			vtep_node_t *node = (vtep_node_t *)list_node->value;
+			printf("  - %s\n", node->hostname);
+		}
+	}
+	listReleaseIterator(iterator);
+	listRelease(vtep_status.ips);
+	listRelease(vtep_status.nodes);
+	free(vtep_status.tun_dev);
+	free(vtep_status.vxlan_dev);
+	free(vtep_status.vxlan_vni);
+	free(vtep_status.vxlan_group);
+	free(vtep_status.vxlan_port);
+	free(vtep_status.vxlan_interface);
+}
+
 static void
 on_response(msgxchng_response_t *res, int status)
 {
@@ -182,7 +224,11 @@ on_response(msgxchng_response_t *res, int status)
 
 	initialize_data();
 	unpack_data(res->data, res->data_len);
-	print_status();
+	if (config.yaml_out) {
+		print_yaml_status();
+	} else {
+		print_status();
+	}
 
 	clean_msgxchng_response(res);
 	free(res);

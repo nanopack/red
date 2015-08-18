@@ -106,13 +106,32 @@ print_data()
 }
 
 static void
+print_yaml_data()
+{
+	vtep_ip_t *ip;
+	listNode *list_node;
+	listIter *itr = listGetIterator(ips, AL_START_HEAD);
+	printf("ips:\n");
+	while ((list_node = listNext(itr)) != NULL) {
+		ip = (vtep_ip_t *)list_node->value;
+		printf("  - %s\n", ip->ip_address);
+	}
+	listReleaseIterator(itr);
+	listRelease(ips);
+}
+
+static void
 on_response(msgxchng_response_t *res, int status)
 {
 	if (status == VTEP_ERR)
 		exit(1);
 	
 	unpack_data(res->data, res->data_len);
-	print_data();
+	if (config.yaml_out) {
+		print_yaml_data();
+	} else {
+		print_data();
+	}
 
 	clean_msgxchng_response(res);
 	free(res);
