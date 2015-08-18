@@ -29,7 +29,7 @@
 #include "util/sds.h"
 
 // todo: move this to autobuild
-#define VTEP_VERSION 	"0.0.2"
+#define VTEP_VERSION 	"0.0.1"
 
 /* Error codes */
 #define VTEP_OK	0
