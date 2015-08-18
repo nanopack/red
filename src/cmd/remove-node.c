@@ -146,7 +146,7 @@ handle_remove_node(int argc, char **argv)
 
 	msgxchng_request_t *req;
 	data = pack_data(&size);
-	req = new_msgxchng_request("1", 1, "node.remove", 11, "", 0);
+	req = new_msgxchng_request("1", 1, "node.remove", 11, data, size);
 
 	free(data);
 	vtepd_request(req, on_response);
