@@ -7,8 +7,8 @@ Vtep is the command line cli to interact with the vtepd daemon.
 
 ### Usage
     Usage: vtep [OPTIONS] <subcommand>  <args> ...
-        -h <hostname>      VTEP hostname (default: %s)
-        -p <port>          VTEP port (default: %i)
+        -h <hostname>      VTEP hostname (default: 127.0.0.1)
+        -p <port>          VTEP port (default: 4470)
         --help             Output this help and exit
         --version          Output version and exit
         --yaml             Format output in YAML
