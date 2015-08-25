@@ -70,7 +70,7 @@ on_response(msgxchng_response_t *res, int status)
 	if (status == VTEP_ERR)
 		exit(1);
 
-	printf("pong!\n");
+	if (!config.no_output) printf("pong!\n");
 
 	clean_msgxchng_response(res);
 	free(res);

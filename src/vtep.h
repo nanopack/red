@@ -29,10 +29,10 @@
 #include "util/sds.h"
 
 // todo: move this to autobuild
-#define VTEP_VERSION 	"0.0.1"
+#define VTEP_VERSION 	"0.0.2"
 
 /* Error codes */
-#define VTEP_OK	0
+#define VTEP_OK		0
 #define VTEP_ERR	-1
 
 /* Sensible defaults */
@@ -43,6 +43,7 @@ typedef struct config_s {
 	sds		vtepd_ip;	/* host/ip of vtep instance */
 	int		vtepd_port;	/* port of vtep instance */
 	int		yaml_out;
+	int		no_output;
 } config_t;
 
 extern config_t config;

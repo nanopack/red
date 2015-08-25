@@ -52,6 +52,7 @@ usage(void)
 "    --help             Output this help and exit\n"
 "    --version          Output version and exit\n"
 "    --yaml             Format output in YAML\n"
+"    --nooutput         Quiet the output for scripting\n"
 "\n"
 "    add-ip <ip address>\n"
 "    remove-ip <ip address>\n"
@@ -95,6 +96,8 @@ parse_options(int argc, char **argv)
 			exit(0);
 		} else if (!strcmp(argv[i],"-y") || !strcmp(argv[i], "--yaml")) {
 			config.yaml_out = 1;
+		} else if (!strcmp(argv[i],"-n") || !strcmp(argv[i], "--nooutput")) {
+			config.no_output = 1;
 		} else {
 			if (argv[i][0] == '-') {
 				fprintf(stderr,
@@ -117,6 +120,7 @@ init_config(void)
 	config.vtepd_ip   = strdup(VTEPD_DEFAULT_ADDR);
 	config.vtepd_port = VTEPD_DEFAULT_PORT;
 	config.yaml_out   = 0;
+	config.no_output  = 0;
 }
 
 static void

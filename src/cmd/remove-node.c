@@ -121,7 +121,7 @@ on_response(msgxchng_response_t *res, int status)
 					else 
 						success = 0;
 				} else if (!strncmp(p->key.via.raw.ptr, "error", p->key.via.raw.size)) {
-					fprintf(stderr, "vtep: %s\n", p->val.via.raw.ptr);
+					if (!config.no_output) fprintf(stderr, "vtep: %s\n", p->val.via.raw.ptr);
 				}
 			}
 		}
