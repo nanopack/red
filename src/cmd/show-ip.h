@@ -24,8 +24,8 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#ifndef VTEP_SHOW_IP_H
-#define VTEP_SHOW_IP_H
+#ifndef RED_SHOW_IP_H
+#define RED_SHOW_IP_H
 
 void 	handle_show_ip(int argc, char **argv);
 

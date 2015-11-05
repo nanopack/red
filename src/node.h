@@ -32,16 +32,16 @@
 #include "util/sds.h"
 #include "util/adlist.h"
 
-typedef struct vtep_node_s {
+typedef struct red_node_s {
 	sds hostname;
-} vtep_node_t;
+} red_node_t;
 
-vtep_node_t	*new_node();
-void		init_node(vtep_node_t *node);
-void		free_node(vtep_node_t *node);
+red_node_t	*new_node();
+void		init_node(red_node_t *node);
+void		free_node(red_node_t *node);
 
-void		pack_node(msgpack_packer *packer, vtep_node_t *node);
-vtep_node_t	*unpack_node(msgpack_object object);
+void		pack_node(msgpack_packer *packer, red_node_t *node);
+red_node_t	*unpack_node(msgpack_object object);
 list		*unpack_nodes(msgpack_object object);
 
 #endif

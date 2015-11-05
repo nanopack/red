@@ -30,8 +30,8 @@
 #include <msgxchng.h>
 
 #include "util/sds.h"
-#include "vtepd.h"
-#include "vtep.h"
+#include "redd.h"
+#include "red.h"
 #include "cmd/show-ip.h"
 #include "ip.h"
 
@@ -93,12 +93,12 @@ unpack_data(char *data, int len)
 static void
 print_data()
 {
-	vtep_ip_t *ip;
+	red_ip_t *ip;
 	listNode *list_node;
 	listIter *itr = listGetIterator(ips, AL_START_HEAD);
 	printf("IP ADDRESSES:\n");
 	while ((list_node = listNext(itr)) != NULL) {
-		ip = (vtep_ip_t *)list_node->value;
+		ip = (red_ip_t *)list_node->value;
 		printf("%s\n", ip->ip_address);
 	}
 	listReleaseIterator(itr);
@@ -108,12 +108,12 @@ print_data()
 static void
 print_yaml_data()
 {
-	vtep_ip_t *ip;
+	red_ip_t *ip;
 	listNode *list_node;
 	listIter *itr = listGetIterator(ips, AL_START_HEAD);
 	printf("ips:\n");
 	while ((list_node = listNext(itr)) != NULL) {
-		ip = (vtep_ip_t *)list_node->value;
+		ip = (red_ip_t *)list_node->value;
 		printf("  - %s\n", ip->ip_address);
 	}
 	listReleaseIterator(itr);
@@ -123,7 +123,7 @@ print_yaml_data()
 static void
 on_response(msgxchng_response_t *res, int status)
 {
-	if (status == VTEP_ERR)
+	if (status == RED_ERR)
 		exit(1);
 	
 	unpack_data(res->data, res->data_len);
@@ -145,5 +145,5 @@ handle_show_ip(int argc, char **argv)
 	msgxchng_request_t *req;
 	req = new_msgxchng_request("1", 1, "ip.list", 7, "", 0);
 
-	vtepd_request(req, on_response);
+	redd_request(req, on_response);
 }

@@ -24,13 +24,13 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#ifndef VTEPD_H
-#define VTEPD_H
+#ifndef REDD_H
+#define REDD_H
 
 #include <msgxchng.h>
 
-typedef void (*vtepd_callback)(msgxchng_response_t *res, int status);
+typedef void (*redd_callback)(msgxchng_response_t *res, int status);
 
-void vtepd_request(msgxchng_request_t *req, vtepd_callback cb);
+void redd_request(msgxchng_request_t *req, redd_callback cb);
 
 #endif

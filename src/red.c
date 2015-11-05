@@ -28,7 +28,7 @@
 #include <stdlib.h>	/* standard library definitions */
 #include <string.h>	/* string operations */
 
-#include "vtep.h"
+#include "red.h"
 #include "util/sds.h"
 #include "cmd/add-ip.h"
 #include "cmd/add-node.h"
@@ -42,13 +42,13 @@
 config_t config;
 int exit_code;
 
-static void 
+static void
 usage(void)
 {
 	fprintf(stderr,
-"Usage: vtep [OPTIONS] <subcommand>  <args> ...\n"
-"    -h <hostname>      VTEP hostname (default: %s)\n"
-"    -p <port>          VTEP port (default: %i)\n"
+"Usage: red [OPTIONS] <subcommand>  <args> ...\n"
+"    -h <hostname>      RED hostname (default: %s)\n"
+"    -p <port>          RED port (default: %i)\n"
 "    --help             Output this help and exit\n"
 "    --version          Output version and exit\n"
 "    --yaml             Format output in YAML\n"
@@ -65,14 +65,14 @@ usage(void)
 "    ping\n"
 "\n"
 "    status\n",
-	VTEPD_DEFAULT_ADDR, 
-	VTEPD_DEFAULT_PORT);
+	REDD_DEFAULT_ADDR,
+	REDD_DEFAULT_PORT);
 
 	exit(1);
 }
 
-static int 
-parse_options(int argc, char **argv) 
+static int
+parse_options(int argc, char **argv)
 {
 	int i;
 
@@ -83,16 +83,16 @@ parse_options(int argc, char **argv)
 		int lastarg = i==argc-1;
 
 		if (!strcmp(argv[i],"-h") && !lastarg) {
-			sdsfree(config.vtepd_ip);
-			config.vtepd_ip = sdsnew(argv[++i]);
+			sdsfree(config.redd_ip);
+			config.redd_ip = sdsnew(argv[++i]);
 		} else if (!strcmp(argv[i],"-h") && lastarg) {
 			usage();
 		} else if (!strcmp(argv[i],"--help")) {
 			usage();
 		} else if (!strcmp(argv[i],"-p") && !lastarg) {
-			config.vtepd_port = atoi(argv[++i]);
+			config.redd_port = atoi(argv[++i]);
 		} else if (!strcmp(argv[i],"-v") || !strcmp(argv[i], "--version")) {
-			printf("vtep %s\n", VTEP_VERSION);
+			printf("red %s\n", RED_VERSION);
 			exit(0);
 		} else if (!strcmp(argv[i],"-y") || !strcmp(argv[i], "--yaml")) {
 			config.yaml_out = 1;
@@ -114,11 +114,11 @@ parse_options(int argc, char **argv)
 	return i;
 }
 
-static void 
+static void
 init_config(void)
 {
-	config.vtepd_ip   = strdup(VTEPD_DEFAULT_ADDR);
-	config.vtepd_port = VTEPD_DEFAULT_PORT;
+	config.redd_ip   = strdup(REDD_DEFAULT_ADDR);
+	config.redd_port = REDD_DEFAULT_PORT;
 	config.yaml_out   = 0;
 	config.no_output  = 0;
 }
@@ -159,7 +159,7 @@ handle_command(int argc, char **argv)
 		usage();
 }
 
-int 
+int
 main(int argc, char **argv)
 {
 	exit_code = 0;
@@ -175,4 +175,3 @@ main(int argc, char **argv)
 
 	return exit_code;
 }
-

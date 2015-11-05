@@ -29,22 +29,22 @@
 #include <bframe.h>
 #include <msgxchng.h>
 
-#include "vtepd.h"
-#include "vtep.h"
+#include "redd.h"
+#include "red.h"
 
-typedef struct vtepd_session_s {
+typedef struct redd_session_s {
 	msgxchng_request_t 	*req;		/* msgxchng request */
-	vtepd_callback		cb;			/* callback function to handle response */
+	redd_callback		cb;			/* callback function to handle response */
 	uv_tcp_t 			*socket;	/* tcp socket */
 	uv_stream_t			*stream;	/* connection stream */
 	bframe_buffer_t		*buf;		/* buffer between packets */
 	void				*data;		/* data storage */
-} vtepd_session_t;
+} redd_session_t;
 
-static vtepd_session_t *
-new_vtepd_session(msgxchng_request_t *req, vtepd_callback cb)
+static redd_session_t *
+new_redd_session(msgxchng_request_t *req, redd_callback cb)
 {
-	vtepd_session_t *session = (vtepd_session_t *)malloc(sizeof(vtepd_session_t));
+	redd_session_t *session = (redd_session_t *)malloc(sizeof(redd_session_t));
 
 	session->req    = req;
 	session->cb     = cb;
@@ -57,7 +57,7 @@ new_vtepd_session(msgxchng_request_t *req, vtepd_callback cb)
 }
 
 static void
-clean_vtepd_session(vtepd_session_t *session)
+clean_redd_session(redd_session_t *session)
 {
 	clean_msgxchng_request(session->req);
 	free(session->req);
@@ -72,7 +72,7 @@ clean_vtepd_session(vtepd_session_t *session)
 }
 
 static void
-parse_response(vtepd_session_t *session, bframe_t *frame)
+parse_response(redd_session_t *session, bframe_t *frame)
 {
 	msgxchng_response_t *res;
 
@@ -81,10 +81,10 @@ parse_response(vtepd_session_t *session, bframe_t *frame)
 	if (!strcmp(res->status, "complete")) {
 		uv_close((uv_handle_t *)session->stream, (uv_close_cb) free);
 		uv_stop(uv_default_loop());
-		clean_vtepd_session(session);
+		clean_redd_session(session);
 	}
 
-	session->cb(res, VTEP_OK);
+	session->cb(res, RED_OK);
 
 	/* cleanup */
 	clean_bframe(frame);
@@ -101,7 +101,7 @@ read_alloc_buffer(uv_handle_t *handle, size_t suggested_size)
 static void
 on_read(uv_stream_t *proto, ssize_t nread, uv_buf_t buf)
 {
-	vtepd_session_t *session = (vtepd_session_t *)proto->data;
+	redd_session_t *session = (redd_session_t *)proto->data;
 
 	if (nread < 0) {
 		if (buf.base) {
@@ -110,9 +110,9 @@ on_read(uv_stream_t *proto, ssize_t nread, uv_buf_t buf)
     	}
     	printf("Error: Connection closed prematurely\n");
 		uv_close((uv_handle_t *)proto, (uv_close_cb) free);
-		session->cb(NULL, VTEP_ERR);
+		session->cb(NULL, RED_ERR);
 		uv_stop(uv_default_loop());
-		clean_vtepd_session(session);
+		clean_redd_session(session);
 		return;
 	}
 
@@ -140,7 +140,7 @@ on_read(uv_stream_t *proto, ssize_t nread, uv_buf_t buf)
 }
 
 static void
-vtepd_recv_response(vtepd_session_t *session)
+redd_recv_response(redd_session_t *session)
 {
 	if (uv_read_start(session->stream, read_alloc_buffer, on_read) == UV_OK)
 		session->stream->data = session;
@@ -159,7 +159,7 @@ on_write(uv_write_t* req, int status)
 }
 
 static void
-vtepd_send_request(vtepd_session_t *session)
+redd_send_request(redd_session_t *session)
 {
 	int p_len;
 	char *payload = pack_msgxchng_request(session->req, &p_len);
@@ -188,33 +188,33 @@ vtepd_send_request(vtepd_session_t *session)
 static void 
 on_connect(uv_connect_t* connection, int status)
 {
-	vtepd_session_t *session = (vtepd_session_t *)connection->data;
+	redd_session_t *session = (redd_session_t *)connection->data;
 
 	if (status < 0) {
-		printf("Error: Unable to connect to VTEP\n");
-		session->cb(NULL, VTEP_ERR);
+		printf("Error: Unable to connect to RED\n");
+		session->cb(NULL, RED_ERR);
 		uv_stop(uv_default_loop());
-		clean_vtepd_session(session);
+		clean_redd_session(session);
 		free(session->socket);
 	} else {
 		session->stream   = (uv_stream_t *)connection->handle;
 
-		vtepd_send_request(session);
-		vtepd_recv_response(session);
+		redd_send_request(session);
+		redd_recv_response(session);
 	}
 
 	free(connection);
 }
 
 static void
-vtepd_connect(char *ip, vtepd_session_t *session)
+redd_connect(char *ip, redd_session_t *session)
 {
 	uv_tcp_t *socket = (uv_tcp_t *)malloc(sizeof(uv_tcp_t));
 
 	uv_tcp_init(uv_default_loop(), socket);
 	uv_tcp_keepalive(socket, 1, 60);
 
-	struct sockaddr_in dest = uv_ip4_addr(ip, config.vtepd_port);
+	struct sockaddr_in dest = uv_ip4_addr(ip, config.redd_port);
 
 	uv_connect_t *connect = malloc(sizeof(uv_connect_t));
 	if(uv_tcp_connect(connect, socket, dest, on_connect) == UV_OK) {
@@ -226,18 +226,18 @@ vtepd_connect(char *ip, vtepd_session_t *session)
 static void
 on_resolve(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
 {
-	vtepd_session_t *session = (vtepd_session_t *)resolver->data;
+	redd_session_t *session = (redd_session_t *)resolver->data;
 
 	if (status < 0) {
-		printf("Error: Unable to resolve %s\n", config.vtepd_ip);
-		session->cb(NULL, VTEP_ERR);
+		printf("Error: Unable to resolve %s\n", config.redd_ip);
+		session->cb(NULL, RED_ERR);
 		uv_stop(uv_default_loop());
-		clean_vtepd_session(session);
+		clean_redd_session(session);
 	} else {
 		char addr[17] = {'\0'};
 		uv_ip4_name((struct sockaddr_in*) res->ai_addr, addr, 16);
 
-		vtepd_connect(addr, session);
+		redd_connect(addr, session);
 	}
 
 	/* cleanup */
@@ -247,7 +247,7 @@ on_resolve(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
 }
 
 static void
-vtepd_resolve(vtepd_session_t *session)
+redd_resolve(redd_session_t *session)
 {
 	uv_getaddrinfo_t *resolver = (uv_getaddrinfo_t *)malloc(sizeof(uv_getaddrinfo_t));
 	struct addrinfo *hints     = (struct addrinfo *)malloc(sizeof(struct addrinfo));
@@ -257,24 +257,24 @@ vtepd_resolve(vtepd_session_t *session)
 	hints->ai_protocol = IPPROTO_TCP;
 	hints->ai_flags    = 0;
 
-	if (uv_getaddrinfo(uv_default_loop(), resolver, on_resolve, config.vtepd_ip, NULL, hints) == UV_OK) {
+	if (uv_getaddrinfo(uv_default_loop(), resolver, on_resolve, config.redd_ip, NULL, hints) == UV_OK) {
 		session->data = hints;
 		resolver->data = session;
 	}
 }
 
 static void
-vtepd_run(vtepd_session_t *session)
+redd_run(redd_session_t *session)
 {
-	vtepd_resolve(session);
+	redd_resolve(session);
 
 	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }
 
 void
-vtepd_request(msgxchng_request_t *req, vtepd_callback cb)
+redd_request(msgxchng_request_t *req, redd_callback cb)
 {
-	vtepd_session_t *session = new_vtepd_session(req, cb);
+	redd_session_t *session = new_redd_session(req, cb);
 
-	vtepd_run(session);
+	redd_run(session);
 }

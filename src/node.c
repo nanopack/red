@@ -32,22 +32,22 @@
 #include "util/sds.h"
 #include "node.h"
 
-vtep_node_t
+red_node_t
 *new_node()
 {
-	vtep_node_t *node = malloc(sizeof(vtep_node_t));
+	red_node_t *node = malloc(sizeof(red_node_t));
 	init_node(node);
 	return node;
 }
 
 void
-init_node(vtep_node_t *node)
+init_node(red_node_t *node)
 {
 	node->hostname = NULL;
 }
 
 void
-free_node(vtep_node_t *node)
+free_node(red_node_t *node)
 {
 	sdsfree(node->hostname);
 }
@@ -63,7 +63,7 @@ pack_key_value(msgpack_packer *packer, char *key,
 }
 
 void
-pack_node(msgpack_packer *packer, vtep_node_t *node)
+pack_node(msgpack_packer *packer, red_node_t *node)
 {
 	msgpack_pack_map(packer, 1);
 	pack_key_value(packer, "node", 4, (char *)node->hostname, (int)sdslen(node->hostname));
@@ -72,8 +72,8 @@ pack_node(msgpack_packer *packer, vtep_node_t *node)
 static void
 *list_dup_node(void *ptr)
 {
-	vtep_node_t *node = (vtep_node_t *)ptr;
-	vtep_node_t *dup_node = malloc(sizeof(vtep_node_t));
+	red_node_t *node = (red_node_t *)ptr;
+	red_node_t *dup_node = malloc(sizeof(red_node_t));
 	dup_node->hostname = sdsdup(node->hostname);
 	return (void *)dup_node;
 }
@@ -81,26 +81,26 @@ static void
 static void
 list_free_node(void *ptr)
 {
-	free_node((vtep_node_t *)ptr);
+	free_node((red_node_t *)ptr);
 }
 
 static int
 list_match_node(void *ptr, void *key)
 {
-	vtep_node_t *node = (vtep_node_t *)ptr;
+	red_node_t *node = (red_node_t *)ptr;
 	if (sdscmp(node->hostname,(sds)key) == 0)
 		return 1;
 	else
 		return 0;
 }
 
-vtep_node_t
+red_node_t
 *unpack_node(msgpack_object object)
 {
 	if (object.type != MSGPACK_OBJECT_MAP)
 		return NULL;
 
-	vtep_node_t *node = malloc(sizeof(vtep_node_t));
+	red_node_t *node = malloc(sizeof(red_node_t));
 	init_node(node);
 
 	msgpack_object_kv* p    = object.via.map.ptr;
@@ -130,7 +130,7 @@ list
 	listSetMatchMethod(node_list, list_match_node);
 	if (object.type != MSGPACK_OBJECT_ARRAY)
 		return node_list;
-	vtep_node_t *node;
+	red_node_t *node;
 
 	for (int i = 0; i < object.via.array.size; i++) {
 		node = unpack_node(object.via.array.ptr[i]);

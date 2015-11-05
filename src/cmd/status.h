@@ -24,8 +24,8 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#ifndef VTEP_STATUS_H
-#define VTEP_STATUS_H
+#ifndef RED_STATUS_H
+#define RED_STATUS_H
 
 void handle_status(int argc, char **argv);
 

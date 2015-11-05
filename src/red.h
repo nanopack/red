@@ -23,25 +23,25 @@
 /*
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
-#ifndef VTEP_H
-#define VTEP_H
+#ifndef RED_H
+#define RED_H
 
 #include "util/sds.h"
 
 // todo: move this to autobuild
-#define VTEP_VERSION 	"0.0.2"
+#define RED_VERSION 	"0.0.2"
 
 /* Error codes */
-#define VTEP_OK		0
-#define VTEP_ERR	-1
+#define RED_OK		0
+#define RED_ERR	-1
 
 /* Sensible defaults */
-#define VTEPD_DEFAULT_ADDR	"127.0.0.1"
-#define VTEPD_DEFAULT_PORT	4470
+#define REDD_DEFAULT_ADDR	"127.0.0.1"
+#define REDD_DEFAULT_PORT	4470
 
 typedef struct config_s {
-	sds		vtepd_ip;	/* host/ip of vtep instance */
-	int		vtepd_port;	/* port of vtep instance */
+	sds		redd_ip;	/* host/ip of red instance */
+	int		redd_port;	/* port of red instance */
 	int		yaml_out;
 	int		no_output;
 } config_t;

@@ -1,28 +1,26 @@
-# VTEP
+# red
+todo: overview/description
 
-## What is VTEP?
-Vtep is the command line cli to interact with the vtepd daemon.
-
-## How to use VTEP:
+## How to use red:
 
 ### Usage
-    Usage: vtep [OPTIONS] <subcommand>  <args> ...
-        -h <hostname>      VTEP hostname (default: 127.0.0.1)
-        -p <port>          VTEP port (default: 4470)
+    Usage: red [OPTIONS] <subcommand>  <args> ...
+        -h <hostname>      red hostname (default: 127.0.0.1)
+        -p <port>          red port (default: 4470)
         --help             Output this help and exit
         --version          Output version and exit
         --yaml             Format output in YAML
-    
+
         add-ip <ip address>
         remove-ip <ip address>
         show-ip
-    
+
         add-node <ip address | hostname>
         remove-node <ip address | hostname>
         show-node
-    
+
         ping
-    
+
         status
 
 ### Options
@@ -31,9 +29,9 @@ Specify the host to connect to
 #### -p <port>
 Specify the port to connect to
 #### --help
-Show the help for vtep
+Show the help for red
 #### --version
-Show the version number of vtep
+Show the version number of red
 #### --yaml
 Format the output of subcommands to be yaml
 ### Subcommands
@@ -50,6 +48,6 @@ Remove host node from peer list.
 #### show-node
 Show a list of nodes in the peer list.
 #### ping
-Sends a simple request to the vtepd api to see if it is listening.
+Sends a simple request to the redd api to see if it is listening.
 #### status
-Shows information about the vtepd server, including ips and nodes.
+Shows information about the redd server, including ips and nodes.

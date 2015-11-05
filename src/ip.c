@@ -31,22 +31,22 @@
 
 #include "ip.h"
 
-vtep_ip_t
+red_ip_t
 *new_ip()
 {
-	vtep_ip_t *ip = malloc(sizeof(vtep_ip_t));
+	red_ip_t *ip = malloc(sizeof(red_ip_t));
 	init_ip(ip);
 	return ip;
 }
 
 void
-init_ip(vtep_ip_t *ip)
+init_ip(red_ip_t *ip)
 {
 	ip->ip_address = NULL;
 }
 
 void
-free_ip(vtep_ip_t *ip)
+free_ip(red_ip_t *ip)
 {
 	sdsfree(ip->ip_address);
 }
@@ -62,7 +62,7 @@ pack_key_value(msgpack_packer *packer, char *key,
 }
 
 void
-pack_ip(msgpack_packer *packer, vtep_ip_t *ip)
+pack_ip(msgpack_packer *packer, red_ip_t *ip)
 {
 	msgpack_pack_map(packer, 1);
 	pack_key_value(packer, "ip_address", 10, (char *)ip->ip_address, (int)sdslen(ip->ip_address));
@@ -71,8 +71,8 @@ pack_ip(msgpack_packer *packer, vtep_ip_t *ip)
 static void
 *list_dup_ip(void *ptr)
 {
-	vtep_ip_t *ip = (vtep_ip_t *)ptr;
-	vtep_ip_t *dup_ip = malloc(sizeof(vtep_ip_t));
+	red_ip_t *ip = (red_ip_t *)ptr;
+	red_ip_t *dup_ip = malloc(sizeof(red_ip_t));
 	dup_ip->ip_address = sdsdup(ip->ip_address);
 	return (void *)dup_ip;
 }
@@ -80,26 +80,26 @@ static void
 static void
 list_free_ip(void *ptr)
 {
-	free_ip((vtep_ip_t *)ptr);
+	free_ip((red_ip_t *)ptr);
 }
 
 static int
 list_match_ip(void *ptr, void *key)
 {
-	vtep_ip_t *ip = (vtep_ip_t *)ptr;
+	red_ip_t *ip = (red_ip_t *)ptr;
 	if (sdscmp(ip->ip_address,(sds)key) == 0)
 		return 1;
 	else
 		return 0;
 }
 
-vtep_ip_t
+red_ip_t
 *unpack_ip(msgpack_object object)
 {
 	if (object.type != MSGPACK_OBJECT_MAP)
 		return NULL;
 
-	vtep_ip_t *ip = malloc(sizeof(vtep_ip_t));
+	red_ip_t *ip = malloc(sizeof(red_ip_t));
 	init_ip(ip);
 
 	msgpack_object_kv* p    = object.via.map.ptr;
@@ -129,7 +129,7 @@ list
 	listSetMatchMethod(ip_list, list_match_ip);
 	if (object.type != MSGPACK_OBJECT_ARRAY)
 		return ip_list;
-	vtep_ip_t *ip;
+	red_ip_t *ip;
 
 	for (int i = 0; i < object.via.array.size; i++) {
 		ip = unpack_ip(object.via.array.ptr[i]);

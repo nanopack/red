@@ -30,8 +30,8 @@
 #include <msgxchng.h>
 
 #include "util/sds.h"
-#include "vtepd.h"
-#include "vtep.h"
+#include "redd.h"
+#include "red.h"
 #include "cmd/ping.h"
 
 static void 
@@ -67,7 +67,7 @@ parse_options(int argc, char **argv)
 static void
 on_response(msgxchng_response_t *res, int status)
 {
-	if (status == VTEP_ERR)
+	if (status == RED_ERR)
 		exit(1);
 
 	if (!config.no_output) printf("pong!\n");
@@ -84,5 +84,5 @@ handle_ping(int argc, char **argv)
 	msgxchng_request_t *req;
 	req = new_msgxchng_request("1", 1, "ping", 4, "", 0);
 
-	vtepd_request(req, on_response);
+	redd_request(req, on_response);
 }

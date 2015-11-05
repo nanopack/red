@@ -24,8 +24,8 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#ifndef VTEP_REMOVE_IP_H
-#define VTEP_REMOVE_IP_H
+#ifndef RED_REMOVE_IP_H
+#define RED_REMOVE_IP_H
 
 void 	handle_remove_ip(int argc, char **argv);
 

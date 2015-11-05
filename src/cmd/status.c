@@ -32,12 +32,12 @@
 #include "ip.h"
 #include "node.h"
 #include "util/sds.h"
-#include "vtepd.h"
-#include "vtep.h"
+#include "redd.h"
+#include "red.h"
 #include "cmd/status.h"
 #include "util/adlist.h"
 
-typedef struct vtep_status_s {
+typedef struct red_status_s {
 	list *ips;
 	list *nodes;
 	char *tun_dev;
@@ -46,9 +46,9 @@ typedef struct vtep_status_s {
 	char *vxlan_group;
 	char *vxlan_port;
 	char *vxlan_interface;
-} vtep_status_t;
+} red_status_t;
 
-static vtep_status_t vtep_status;
+static red_status_t red_status;
 
 static void 
 usage(void)
@@ -83,14 +83,14 @@ parse_options(int argc, char **argv)
 static void
 initialize_data()
 {
-	vtep_status.ips = listCreate();
-	vtep_status.nodes = listCreate();
-	vtep_status.tun_dev = strdup("");
-	vtep_status.vxlan_dev = strdup("");
-	vtep_status.vxlan_vni = strdup("");
-	vtep_status.vxlan_group = strdup("");
-	vtep_status.vxlan_port = strdup("");
-	vtep_status.vxlan_interface = strdup("");
+	red_status.ips = listCreate();
+	red_status.nodes = listCreate();
+	red_status.tun_dev = strdup("");
+	red_status.vxlan_dev = strdup("");
+	red_status.vxlan_vni = strdup("");
+	red_status.vxlan_group = strdup("");
+	red_status.vxlan_port = strdup("");
+	red_status.vxlan_interface = strdup("");
 }
 
 static void
@@ -109,31 +109,31 @@ unpack_data(char *data, int len)
 		for (; p < pend; ++p) {
 			if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_ARRAY) {
 				if (!strncmp(p->key.via.raw.ptr, "ip_addresses", p->key.via.raw.size)) {
-					listRelease(vtep_status.ips);
-					vtep_status.ips = unpack_ips(p->val);
+					listRelease(red_status.ips);
+					red_status.ips = unpack_ips(p->val);
 				} else if (!strncmp(p->key.via.raw.ptr, "nodes", p->key.via.raw.size)) {
-					listRelease(vtep_status.nodes);
-					vtep_status.nodes = unpack_nodes(p->val);
+					listRelease(red_status.nodes);
+					red_status.nodes = unpack_nodes(p->val);
 				}
 			} else if (p->key.type == MSGPACK_OBJECT_RAW && p->val.type == MSGPACK_OBJECT_RAW) {
 				if (!strncmp(p->key.via.raw.ptr, "tun_dev", p->key.via.raw.size)) {
-					free(vtep_status.tun_dev);
-					vtep_status.tun_dev = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
+					free(red_status.tun_dev);
+					red_status.tun_dev = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_dev", p->key.via.raw.size)) {
-					free(vtep_status.vxlan_dev);
-					vtep_status.vxlan_dev = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
+					free(red_status.vxlan_dev);
+					red_status.vxlan_dev = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_vni", p->key.via.raw.size)) {
-					free(vtep_status.vxlan_vni);
-					vtep_status.vxlan_vni = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
+					free(red_status.vxlan_vni);
+					red_status.vxlan_vni = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_group", p->key.via.raw.size)) {
-					free(vtep_status.vxlan_group);
-					vtep_status.vxlan_group = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
+					free(red_status.vxlan_group);
+					red_status.vxlan_group = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_port", p->key.via.raw.size)) {
-					free(vtep_status.vxlan_port);
-					vtep_status.vxlan_port = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
+					free(red_status.vxlan_port);
+					red_status.vxlan_port = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				} else if (!strncmp(p->key.via.raw.ptr, "vxlan_interface", p->key.via.raw.size)) {
-					free(vtep_status.vxlan_interface);
-					vtep_status.vxlan_interface = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
+					free(red_status.vxlan_interface);
+					red_status.vxlan_interface = strndup(p->val.via.raw.ptr, p->val.via.raw.size);
 				}
 			}
 		}
@@ -142,84 +142,84 @@ unpack_data(char *data, int len)
 
 static void print_status()
 {
-	listIter *iterator	= listGetIterator(vtep_status.ips, AL_START_HEAD);
+	listIter *iterator	= listGetIterator(red_status.ips, AL_START_HEAD);
 	listNode *list_node	= NULL;
-	printf("Tunnel Device:\t%s\n", vtep_status.tun_dev);
-	printf("VxLAN Device:\t%s\n", vtep_status.vxlan_dev);
-	printf("VxLAN VNI:\t%s\n", vtep_status.vxlan_vni);
-	printf("Multicast Group:\t%s\n", vtep_status.vxlan_group);
-	printf("VxLan Port:\t%s\n", vtep_status.vxlan_port);
-	printf("Real Interface:\t%s\n", vtep_status.vxlan_interface);
-	iterator = listGetIterator(vtep_status.ips, AL_START_HEAD);
+	printf("Tunnel Device:\t%s\n", red_status.tun_dev);
+	printf("VxLAN Device:\t%s\n", red_status.vxlan_dev);
+	printf("VxLAN VNI:\t%s\n", red_status.vxlan_vni);
+	printf("Multicast Group:\t%s\n", red_status.vxlan_group);
+	printf("VxLan Port:\t%s\n", red_status.vxlan_port);
+	printf("Real Interface:\t%s\n", red_status.vxlan_interface);
+	iterator = listGetIterator(red_status.ips, AL_START_HEAD);
 	printf("IP ADDRESSES:\n");
 	while ((list_node = listNext(iterator)) != NULL) {
-		vtep_ip_t *ip = (vtep_ip_t *)list_node->value;
+		red_ip_t *ip = (red_ip_t *)list_node->value;
 		printf("\t%s\n", ip->ip_address);
 	}
 	listReleaseIterator(iterator);
-	iterator = listGetIterator(vtep_status.nodes, AL_START_HEAD);
+	iterator = listGetIterator(red_status.nodes, AL_START_HEAD);
 	printf("NODES:\n");
 	while ((list_node = listNext(iterator)) != NULL) {
-		vtep_node_t *node = (vtep_node_t *)list_node->value;
+		red_node_t *node = (red_node_t *)list_node->value;
 		printf("\t%s\n", node->hostname);
 	}
 	listReleaseIterator(iterator);
-	listRelease(vtep_status.ips);
-	listRelease(vtep_status.nodes);
-	free(vtep_status.tun_dev);
-	free(vtep_status.vxlan_dev);
-	free(vtep_status.vxlan_vni);
-	free(vtep_status.vxlan_group);
-	free(vtep_status.vxlan_port);
-	free(vtep_status.vxlan_interface);
+	listRelease(red_status.ips);
+	listRelease(red_status.nodes);
+	free(red_status.tun_dev);
+	free(red_status.vxlan_dev);
+	free(red_status.vxlan_vni);
+	free(red_status.vxlan_group);
+	free(red_status.vxlan_port);
+	free(red_status.vxlan_interface);
 }
 
 static void print_yaml_status()
 {
 	listNode *list_node	= NULL;
 	listIter *iterator = NULL;
-	printf("tunnel_device: %s\n", vtep_status.tun_dev);
-	printf("vxlan_device: %s\n", vtep_status.vxlan_dev);
-	printf("vxlan_vni: %s\n", vtep_status.vxlan_vni);
-	printf("multicast_group: %s\n", vtep_status.vxlan_group);
-	printf("vxlan_port: %s\n", vtep_status.vxlan_port);
-	printf("real_interface: %s\n", vtep_status.vxlan_interface);
-	if (listLength(vtep_status.ips) == 0) {
+	printf("tunnel_device: %s\n", red_status.tun_dev);
+	printf("vxlan_device: %s\n", red_status.vxlan_dev);
+	printf("vxlan_vni: %s\n", red_status.vxlan_vni);
+	printf("multicast_group: %s\n", red_status.vxlan_group);
+	printf("vxlan_port: %s\n", red_status.vxlan_port);
+	printf("real_interface: %s\n", red_status.vxlan_interface);
+	if (listLength(red_status.ips) == 0) {
 		printf("ips: []\n");
 	} else {
-		iterator = listGetIterator(vtep_status.ips, AL_START_HEAD);
+		iterator = listGetIterator(red_status.ips, AL_START_HEAD);
 		printf("ips:\n");
 		while ((list_node = listNext(iterator)) != NULL) {
-			vtep_ip_t *ip = (vtep_ip_t *)list_node->value;
+			red_ip_t *ip = (red_ip_t *)list_node->value;
 			printf("  - %s\n", ip->ip_address);
 		}
 		listReleaseIterator(iterator);
 	}
-	if (listLength(vtep_status.nodes) == 0) {
+	if (listLength(red_status.nodes) == 0) {
 		printf("nodes: []\n");
 	} else {
-		iterator = listGetIterator(vtep_status.nodes, AL_START_HEAD);
+		iterator = listGetIterator(red_status.nodes, AL_START_HEAD);
 		printf("nodes:\n");
 		while ((list_node = listNext(iterator)) != NULL) {
-			vtep_node_t *node = (vtep_node_t *)list_node->value;
+			red_node_t *node = (red_node_t *)list_node->value;
 			printf("  - %s\n", node->hostname);
 		}
 	}
 	listReleaseIterator(iterator);
-	listRelease(vtep_status.ips);
-	listRelease(vtep_status.nodes);
-	free(vtep_status.tun_dev);
-	free(vtep_status.vxlan_dev);
-	free(vtep_status.vxlan_vni);
-	free(vtep_status.vxlan_group);
-	free(vtep_status.vxlan_port);
-	free(vtep_status.vxlan_interface);
+	listRelease(red_status.ips);
+	listRelease(red_status.nodes);
+	free(red_status.tun_dev);
+	free(red_status.vxlan_dev);
+	free(red_status.vxlan_vni);
+	free(red_status.vxlan_group);
+	free(red_status.vxlan_port);
+	free(red_status.vxlan_interface);
 }
 
 static void
 on_response(msgxchng_response_t *res, int status)
 {
-	if (status == VTEP_ERR)
+	if (status == RED_ERR)
 		exit(1);
 
 	initialize_data();
@@ -242,5 +242,5 @@ handle_status(int argc, char **argv)
 	msgxchng_request_t *req;
 	req = new_msgxchng_request("1", 1, "status", 6, "", 0);
 
-	vtepd_request(req, on_response);
+	redd_request(req, on_response);
 }

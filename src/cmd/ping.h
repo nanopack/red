@@ -24,8 +24,8 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#ifndef VTEP_PING_H
-#define VTEP_PING_H
+#ifndef RED_PING_H
+#define RED_PING_H
 
 void 	handle_ping(int argc, char **argv);
 

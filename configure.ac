@@ -1,10 +1,10 @@
-# rebuild: autoreconf -fvi 
+# rebuild: autoreconf -fvi
 
 AC_PREREQ(2.61)
 
-AC_INIT([vtep], [0.0.2])
+AC_INIT([red], [0.0.2])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
-AC_CONFIG_SRCDIR([src/vtep.c])
+AC_CONFIG_SRCDIR([src/red.c])
 
 AC_PROG_CC
 AC_PROG_CC_STDC

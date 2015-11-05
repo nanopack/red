@@ -24,8 +24,8 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#ifndef VTEP_ADD_IP_H
-#define VTEP_ADD_IP_H
+#ifndef RED_ADD_IP_H
+#define RED_ADD_IP_H
 
 void 	handle_add_ip(int argc, char **argv);
 

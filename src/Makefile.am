@@ -1,9 +1,9 @@
 # -*- mode: Makefile; tab-width: 4; indent-tabs-mode: 1; st-rulers: [70] -*-
 # vim: ts=8 sw=8 ft=Makefile noet
 
-bin_PROGRAMS = vtep
+bin_PROGRAMS = red
 
-vtep_SOURCES =  \
+red_SOURCES =  \
 	cmd/add-ip.c cmd/add-ip.h \
 	cmd/remove-ip.c cmd/remove-ip.h \
 	cmd/show-ip.c cmd/show-ip.h \
@@ -16,5 +16,5 @@ vtep_SOURCES =  \
 	node.c node.h \
 	util/adlist.c util/adlist.h \
 	util/sds.c util/sds.h \
-	vtepd.c vtepd.h \
-	vtep.c vtep.h
+	redd.c redd.h \
+	red.c red.h

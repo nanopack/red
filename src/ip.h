@@ -32,16 +32,16 @@
 #include "util/sds.h"
 #include "util/adlist.h"
 
-typedef struct vtep_ip_s {
+typedef struct red_ip_s {
 	sds ip_address;
-} vtep_ip_t;
+} red_ip_t;
 
-vtep_ip_t	*new_ip();
-void		init_ip(vtep_ip_t *ip);
-void		free_ip(vtep_ip_t *ip);
+red_ip_t	*new_ip();
+void		init_ip(red_ip_t *ip);
+void		free_ip(red_ip_t *ip);
 
-void		pack_ip(msgpack_packer *packer, vtep_ip_t *ip);
-vtep_ip_t	*unpack_ip(msgpack_object object);
+void		pack_ip(msgpack_packer *packer, red_ip_t *ip);
+red_ip_t	*unpack_ip(msgpack_object object);
 list		*unpack_ips(msgpack_object object);
 
 #endif

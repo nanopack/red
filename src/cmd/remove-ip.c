@@ -30,12 +30,12 @@
 #include <msgxchng.h>
 
 #include "util/sds.h"
-#include "vtepd.h"
-#include "vtep.h"
+#include "redd.h"
+#include "red.h"
 #include "cmd/remove-ip.h"
 #include "ip.h"
 
-static vtep_ip_t ip;
+static red_ip_t ip;
 
 static void 
 usage(void)
@@ -98,7 +98,7 @@ pack_data(int *size)
 static void
 on_response(msgxchng_response_t *res, int status)
 {
-	if (status == VTEP_ERR)
+	if (status == RED_ERR)
 		exit(1);
 
 	msgpack_zone mempool;
@@ -121,7 +121,7 @@ on_response(msgxchng_response_t *res, int status)
 					else 
 						success = 0;
 				} else if (!strncmp(p->key.via.raw.ptr, "error", p->key.via.raw.size)) {
-					if (!config.no_output) fprintf(stderr, "vtep: %s\n", p->val.via.raw.ptr);
+					if (!config.no_output) fprintf(stderr, "red: %s\n", p->val.via.raw.ptr);
 				}
 			}
 		}
@@ -149,5 +149,5 @@ handle_remove_ip(int argc, char **argv)
 	req = new_msgxchng_request("1", 1, "ip.remove", 9, data, size);
 
 	free(data);
-	vtepd_request(req, on_response);
+	redd_request(req, on_response);
 }

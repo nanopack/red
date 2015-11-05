@@ -24,8 +24,8 @@
  * Copyright 2013 Pagoda Box, Inc.  All rights reserved.
  */
 
-#ifndef VTEP_SHOW_NODE_H
-#define VTEP_SHOW_NODE_H
+#ifndef RED_SHOW_NODE_H
+#define RED_SHOW_NODE_H
 
 void 	handle_show_node(int argc, char **argv);
 
