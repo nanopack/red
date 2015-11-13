@@ -1,3 +1,5 @@
+[![red logo](http://nano-assets.gopagoda.io/readme-headers/red.png)](http://nanobox.io/open-source#red)
+ [![Build Status](https://travis-ci.org/nanopack/red.svg)](https://travis-ci.org/nanopack/red)
 # red
 todo: overview/description
 
@@ -51,3 +53,5 @@ Show a list of nodes in the peer list.
 Sends a simple request to the redd api to see if it is listening.
 #### status
 Shows information about the redd server, including ips and nodes.
+
+[![open source](http://nano-assets.gopagoda.io/open-src/nanobox-open-src.png)](http://nanobox.io/open-source)
