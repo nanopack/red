@@ -1,7 +1,7 @@
 [![red logo](http://nano-assets.gopagoda.io/readme-headers/red.png)](http://nanobox.io/open-source#red)
  [![Build Status](https://travis-ci.org/nanopack/red.svg)](https://travis-ci.org/nanopack/red)
 # red
-A fast, in-kernel, ad-hoc point-to-point vxlan network. This project interacts with [redd](https://github.com/nanopack/redd)
+A fast, in-kernel, ad-hoc point-to-point vxlan network. This project interacts with [redd](https://github.com/nanopack/redd) to build virtual networks. The redd project is the daemon that interacts with the kernel's vxlan module. This project is the command-line utility used to interact with redd.
 
 ## How to use red:
 
