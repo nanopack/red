@@ -1,7 +1,7 @@
 [![red logo](http://nano-assets.gopagoda.io/readme-headers/red.png)](http://nanobox.io/open-source#red)
  [![Build Status](https://travis-ci.org/nanopack/red.svg)](https://travis-ci.org/nanopack/red)
 # red
-A fast, in-kernel, ad-hoc point-to-point vxlan network.
+A fast, in-kernel, ad-hoc point-to-point vxlan network. This project interacts with [redd](https://github.com/nanopack/redd)
 
 ## How to use red:
 
