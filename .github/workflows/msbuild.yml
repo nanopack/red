@@ -1,6 +1,6 @@
 name: MSBuild
 
-on: [push]
+on: [pull]
 
 env:
   # Path to the solution file relative to the root of the project.
